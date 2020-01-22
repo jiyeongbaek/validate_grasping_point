@@ -189,13 +189,10 @@ class MoveGroupPlanner():
                 
                 rospy.sleep(1)
                 grasp_point = listener.transformPose(self.planning_frame, grasp_point) #transfrom msg to "base" frame
-                print("???")   
+                   
                 if (arm == "left"):
-                    print("???")   
                     self.group_left.set_pose_target(grasp_point)
-                    print("???")   
                     plan = self.group_left.plan()
-                    print("???")   
                     if plan.joint_trajectory.points:
                         print(pose['position'][0], pose['position'][1], pose['position'][2])
                         self.group_left.go()
@@ -226,9 +223,10 @@ if __name__ == '__main__':
      
     listener = tf.TransformListener()
     listener.waitForTransform("assembly_frame", mdp.planning_frame, rospy.Time(0), rospy.Duration(1.0))
-
+    
     mdp.check_grasp("assembly", "left")
     mdp.check_grasp("assembly", "right")
+    mdp.gripper_open("left")
     # mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "long_part")
     
     rospy.sleep(1)
