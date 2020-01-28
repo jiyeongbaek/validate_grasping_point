@@ -224,9 +224,10 @@ if __name__ == '__main__':
     listener = tf.TransformListener()
     listener.waitForTransform("assembly_frame", mdp.planning_frame, rospy.Time(0), rospy.Duration(1.0))
     
-    mdp.check_grasp("assembly", "left")
     mdp.check_grasp("assembly", "right")
-    mdp.gripper_open("left")
+    mdp.check_grasp("assembly", "left")
+    
+    # mdp.gripper_open("left")
     # mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "long_part")
     
     rospy.sleep(1)

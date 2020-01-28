@@ -64,9 +64,11 @@ class MoveGroupPlanner():
         self.stefan = SceneObject()
 
         self.scene.remove_attached_object(self.group.get_end_effector_link())
+        rospy.sleep(1)
         self.scene.remove_world_object()
         # for key, value in self.stefan.list.items():
-        #     self.scene.add_mesh(key, value, stefan_dir + key + ".stl")
+        #     self.scene.add_mesh(key, value, self.stefan_dir + key + ".stl")
+        rospy.sleep(1)
         ### Franka Collision
         self.set_collision_behavior = rospy.ServiceProxy(
             'franka_control/set_force_torque_collision_behavior',
@@ -105,10 +107,9 @@ class MoveGroupPlanner():
         
     def plan_joint_target(self):
         joint_goal = self.group.get_current_joint_values()
-        joint_goal = [-0.289813, 0.871605, 0.249683, -1.59927, -0.339007, 2.43319 ,2.45162, 0.393606, 0.550363 ,-0.177402, -1.22989, 0.275343, 1.80495, 2.50236]
+        joint_goal = [-1.86503 ,0.422209, 1.68431 ,-2.56123, -0.219032 ,2.29539, 1.83065, 2.11514, -1.07206 ,-1.29386, -1.69659 ,-0.523207 ,1.54499 ,2.63821 ]
         self.group.plan(joint_goal)
         self.group.go()
-    
     # def plan_object(self):
     #     pose_goal = geometry_msgs.msg.Pose()
     #     q = tf.transformations.quaternion_from_euler(radians(85), radians(3), 0)
@@ -164,11 +165,11 @@ if __name__ == '__main__':
     mdp.gripper_open("right")
     mdp.gripper_open("left")
 
-    # mdp.plan_object()
     mdp.plan_joint_target()
     for key, value in mdp.stefan.list.items():
-        mdp.scene.add_mesh(key, value, mdp.stefan_dir + key + ".stl")
-    rospy.sleep(2)
+            mdp.scene.add_mesh(key, value, mdp.stefan_dir + key + ".stl")
+        
+    rospy.sleep(1)
     mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "assembly")
     rospy.sleep(1)
     
