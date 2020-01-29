@@ -66,8 +66,8 @@ class MoveGroupPlanner():
         self.scene.remove_attached_object(self.group.get_end_effector_link())
         rospy.sleep(1)
         self.scene.remove_world_object()
-        # for key, value in self.stefan.list.items():
-        #     self.scene.add_mesh(key, value, self.stefan_dir + key + ".stl")
+        for key, value in self.stefan.list.items():
+            self.scene.add_mesh(key, value, self.stefan_dir + key + ".stl")
         rospy.sleep(1)
         ### Franka Collision
         self.set_collision_behavior = rospy.ServiceProxy(
@@ -160,18 +160,18 @@ if __name__ == '__main__':
     rospy.init_node('ggg')
     
     mdp = MoveGroupPlanner()
-    mdp.initial_pose()
+    # mdp.initial_pose()
     
-    mdp.gripper_open("right")
-    mdp.gripper_open("left")
+    # mdp.gripper_open("right")
+    # mdp.gripper_open("left")
 
-    mdp.plan_joint_target()
-    for key, value in mdp.stefan.list.items():
-            mdp.scene.add_mesh(key, value, mdp.stefan_dir + key + ".stl")
+    # mdp.plan_joint_target()
+    # for key, value in mdp.stefan.list.items():
+    #         mdp.scene.add_mesh(key, value, mdp.stefan_dir + key + ".stl")
         
-    rospy.sleep(1)
-    mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "assembly")
-    rospy.sleep(1)
+    # rospy.sleep(1)
+    # mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "assembly")
+    # rospy.sleep(1)
     
 
     

@@ -12,9 +12,11 @@ class SceneObject():
         self.assembly_pose = geometry_msgs.msg.PoseStamped()
         self.assembly_pose.header.frame_id="base"
         # self.assembly_pose.pose.orientation.w = 1.0
-        # self.assembly_pose.pose.position.x = 0.9
-        # self.assembly_pose.pose.position.y = 0.15 # -0.15
-        # self.assembly_pose.pose.position.z = 0.80#0.601
+        # self.assembly_pose.pose.position.x = 1.0
+        # self.assembly_pose.pose.position.y = -0.15 # -0.15
+        # self.assembly_pose.pose.position.z = 0.601#0.601
+
+
         # q = tf.transformations.quaternion_from_euler(radians(0), radians(0), radians(30))
         # self.assembly_pose.pose.orientation.x = q[0]
         # self.assembly_pose.pose.orientation.y = q[1]
@@ -66,17 +68,15 @@ class SceneObject():
         # self.assembly_pose.pose.orientation.z = q[2]
         # self.assembly_pose.pose.orientation.w = q[3]
        
-       # RealVectorState [0.936003 0.342339 0.875876]
-#SO3State [-0.0717776 -0.0705749 0.446353 0.889177]
 
-        self.assembly_pose.pose.orientation.x = -0.0717776 
-        self.assembly_pose.pose.orientation.y = -0.0705749
-        self.assembly_pose.pose.orientation.z = 0.446353
-        self.assembly_pose.pose.orientation.w = 0.889177
-        self.assembly_pose.pose.position.x = 0.936003
-        self.assembly_pose.pose.position.y = 0.342339
-        self.assembly_pose.pose.position.z = 0.875876
-
+        self.assembly_pose.pose.position.x = 1.1
+        self.assembly_pose.pose.position.y = 0.15 # -0.15
+        self.assembly_pose.pose.position.z = 1.0#0.601
+        q = tf.transformations.quaternion_from_euler(radians(175), radians(0), radians(0))
+        self.assembly_pose.pose.orientation.x = q[0]
+        self.assembly_pose.pose.orientation.y = q[1]
+        self.assembly_pose.pose.orientation.z = q[2]
+        self.assembly_pose.pose.orientation.w = q[3]
 
         self.list = {self.assembly : self.assembly_pose}
      

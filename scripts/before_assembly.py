@@ -112,7 +112,7 @@ class MoveGroupPlanner():
             *tf_conversions.transformations.quaternion_from_euler(math.radians(90), math.radians(90), math.radians(0)))
         pose_goal.position.x =  0.5429
         pose_goal.position.y = 0.05
-        pose_goal.position.z = 0.6 + 0.30
+        pose_goal.position.z = 0.6 + 0.50
 
         trajectory = self.group_left.plan(pose_goal)
         return trajectory
@@ -139,21 +139,36 @@ class MoveGroupPlanner():
         trajectory = self.group_right.plan(joint_goal)
         return trajectory
        
-    def gripper_open(self):
+    def gripper_open(self, arm):
         joint_goal = self.hand_left.get_current_joint_values()
-        print(joint_goal)
         joint_goal[0] = 0.04
         joint_goal[1] = 0.04
-        trajectory = self.hand_left.plan(joint_goal)
-        return trajectory
-    def gripper_close(self):
-        joint_goal = self.hand_left.get_current_joint_values()
-        print(joint_goal)
-        joint_goal[0] = 0.0
-        joint_goal[1] = 0.0
-        trajectory = self.hand_left.plan(joint_goal)
-        return trajectory
+        if (arm == "left"):
+            plan = self.hand_left.plan(joint_goal)
+            if plan.joint_trajectory.points:
+                self.hand_left.go()
+                print("OPEN LEFT GRIPPER")
+        
+        else :
+            self.hand_right.plan(joint_goal)
+            print("OPEN RIGHT GRIPPER")
+            self.hand_right.go()
+        
 
+    def gripper_close(self, arm):
+        joint_goal = self.hand_left.get_current_joint_values()
+        joint_goal[0] = 0.02
+        joint_goal[1] = 0.02
+        if (arm == "left"):
+            plan = self.hand_left.plan(joint_goal)
+            if plan.joint_trajectory.points:
+                self.hand_left.go()
+                print("CLOSE LEFT GRIPPER")
+        else :
+            self.hand_right.plan(joint_goal)
+            self.hand_right.go()
+            print("CLOSE RIGHT GRIPPER")
+        
     def display_trajectory(self, plan):
         self.display_trajectory = moveit_msgs.msg.DisplayTrajectory()
         self.display_trajectory.trajectory_start = self.robot.get_current_state()
@@ -161,11 +176,11 @@ class MoveGroupPlanner():
         # Publish
         self.display_trajectory_publisher.publish(display_trajectory)
 
-    def check_grasp(self, part_name):
+    def check_grasp(self, part_name, arm):
         file_name = self.stefan.stefan_dir + "../grasping_point/" + part_name + ".stl.yaml"
         with open(file_name, 'r') as stream:
             data_loaded = yaml.safe_load(stream)
-       
+        print(file_name)
         for pose in data_loaded['grasp_points']:
             if not rospy.is_shutdown():
                 grasp_point = geometry_msgs.msg.PoseStamped()
@@ -184,14 +199,25 @@ class MoveGroupPlanner():
                 
                 rospy.sleep(1)
                 grasp_point = listener.transformPose(self.planning_frame, grasp_point) #transfrom msg to "base" frame
-                self.group_left.set_pose_target(grasp_point)
-                plan = self.group_left.plan()
-                if plan.joint_trajectory.points:
-                    print(grasp_point)
-                    self.group_left.go()
-                                        
-                else:
-                    rospy.logerr("FAILED")
+                   
+                if (arm == "left"):
+                    self.group_left.set_pose_target(grasp_point)
+                    plan = self.group_left.plan()
+                    if plan.joint_trajectory.points:
+                        print(pose['position'][0], pose['position'][1], pose['position'][2])
+                        self.group_left.go()
+                        break
+                    else:
+                        rospy.logerr("FAILED")
+                else :
+                    self.group_right.set_pose_target(grasp_point)
+                    plan = self.group_right.plan()
+                    if plan.joint_trajectory.points:
+                        print(pose['position'][0], pose['position'][1], pose['position'][2])
+                        self.group_right.go()
+                        break                
+                    else:
+                        rospy.logerr("FAILED")        
 
 if __name__ == '__main__':
 
@@ -201,23 +227,18 @@ if __name__ == '__main__':
     mdp = MoveGroupPlanner()
     mdp.initial_pose()
     mdp.group_left.go()
-    mdp.gripper_open()
-    mdp.hand_left.go()
-    
-
-
-
-    
+    mdp.gripper_open("left")
+    rospy.sleep(1)
     listener = tf.TransformListener()
     listener.waitForTransform("short_part_frame", mdp.planning_frame, rospy.Time(0), rospy.Duration(1.0))
     
-    mdp.check_grasp("long_part")
-    mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "long_part")
-    
+    mdp.check_grasp("long_part", "left")
+    touch_links = mdp.robot.get_link_names(group = 'hand_left')
+    mdp.scene.attach_mesh(mdp.group_left.get_end_effector_link(), "long_part", touch_links=touch_links)
+    # mdp.scene.attach_mesh('panda_left_link8', "long_part")
+   
     rospy.sleep(1)
-    
-    mdp.plan_joint_target()
-    mdp.group_right.go()
+    mdp.gripper_close("left")
 
     mdp.plan_cartesian_target()
     mdp.group_left.go()
